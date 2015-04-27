@@ -1,10 +1,11 @@
 package bolt
 
 import (
-	"github.com/drone/drone/common"
-	. "github.com/franela/goblin"
 	"os"
 	"testing"
+
+	"github.com/drone/drone/common"
+	. "github.com/franela/goblin"
 )
 
 func TestBuild(t *testing.T) {
@@ -99,13 +100,22 @@ func TestBuild(t *testing.T) {
 		})
 
 		g.It("Should set build task: SetBuildTask()", func() {
-			err := db.SetRepoNotExists(&common.User{Login: testUser}, &common.Repo{FullName: testRepo})
+			err := db.SetRepoNotExists(&common.User{Login: testUser}, &common.Repo{FullName: repo})
 			g.Assert(err).Equal(nil)
 
-			db.SetBuild(repo, &common.Build{State: "error"})
-			db.SetBuild(repo, &common.Build{State: "pending"})
-			db.SetBuild(repo, &common.Build{State: "success"})
-			err_ := db.SetBuildTask(repo, 1, &common.Task{Number: 1})
+			tasks := []*common.Task{
+				&common.Task{
+					Number:   1,
+					State:    "pending",
+					ExitCode: 0,
+				},
+			}
+			db.SetBuild(repo, &common.Build{Number: 1, State: "failed", Tasks: tasks})
+			err_ := db.SetBuildTask(repo, 1, &common.Task{Number: 1, State: "error", ExitCode: -1})
+			g.Assert(err_).Equal(nil)
+
+			db.SetBuild(repo, &common.Build{Number: 2, State: "success", Tasks: tasks})
+			err_ = db.SetBuildTask(repo, 2, &common.Task{Number: 1, State: "success", ExitCode: 0})
 			g.Assert(err_).Equal(nil)
 		})
 	})
