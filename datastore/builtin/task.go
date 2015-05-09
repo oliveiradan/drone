@@ -2,10 +2,11 @@ package builtin
 
 import (
 	"bytes"
-	"github.com/boltdb/bolt"
 	"io"
 	"io/ioutil"
 	"strconv"
+
+	"github.com/boltdb/bolt"
 )
 
 // SetLogs inserts or updates a task logs for the
@@ -16,7 +17,7 @@ func (db *DB) SetLogs(repo string, build int, task int, rd io.Reader) error {
 	if err != nil {
 		return err
 	}
-	
+
 	log, err := ioutil.ReadAll(rd)
 	if err != nil {
 		return err
@@ -44,4 +45,3 @@ func (db *DB) LogReader(repo string, build int, task int) (io.Reader, error) {
 	buf := bytes.NewBuffer(log)
 	return buf, err
 }
-
